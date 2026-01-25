@@ -4,6 +4,8 @@ import com.bista.user_profile_service.entity.User;
 import com.bista.user_profile_service.service.UserService;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,8 +25,8 @@ public class UserController {
     }
 
     @PostMapping("/profile")
-    public User addUserProfile(@RequestBody User user) {
-        return userService.saveUser(user);
+    public User addUserProfile(@AuthenticationPrincipal Jwt jwt, @RequestBody User user) {
+        return userService.saveUser(user, jwt);
     }
 
     @GetMapping("/profile")

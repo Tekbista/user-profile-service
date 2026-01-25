@@ -1,7 +1,8 @@
 package com.bista.user_profile_service.service;
 
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
-
+import org.keycloak.representations.idm.UserRepresentation;
 import com.bista.user_profile_service.entity.User;
 import com.bista.user_profile_service.exception.BadRequestException;
 import com.bista.user_profile_service.exception.ResourceNotFoundException;
@@ -11,9 +12,11 @@ import com.bista.user_profile_service.repo.UserRepository;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final KeycloakUserService keycloakUserService;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, KeycloakUserService keycloakUserService) {
         this.userRepository = userRepository;
+        this.keycloakUserService = keycloakUserService;
     }
 
     public User findByKeycloakId(String keycloakId) {
@@ -25,11 +28,20 @@ public class UserService {
         }
     }
 
-    public User saveUser(User user) {
+    public User saveUser(User user, Jwt jwt) {
+        String keycloakId = jwt.getSubject();
+
+        UserRepresentation kcUser = keycloakUserService.getUser(keycloakId);
         if (user == null) {
             throw new BadRequestException("User cannot be null");
         }
-        return userRepository.save(user);
+        user.setKeycloakId(keycloakId);
+        user.setEmail(kcUser.getEmail());
+        user.setFirstName(kcUser.getFirstName());
+        user.setLastName(kcUser.getLastName());
+        user.setUsername(kcUser.getUsername());
+
+        return user;
     }
 
     public User getUserById(Long id) {
