@@ -34,7 +34,20 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
     }
 
-    public User updateUser(User user) {
+    public User updateUser(String keycloakId, User updatedUser) {
+        User user = findByKeycloakId(keycloakId);
+        if (user == null) {
+            throw new ResourceNotFoundException("User not found with Keycloak ID: " + keycloakId);
+        }
+        user.setFirstName(updatedUser.getFirstName());
+        user.setLastName(updatedUser.getLastName());
+        user.setEmail(updatedUser.getEmail());
+        user.setPhoneNumber(updatedUser.getPhoneNumber());
+        user.setAddresses(updatedUser.getAddresses());
         return userRepository.save(user);
+    }
+
+    public void deleteUser(User user) {
+        userRepository.delete(user);
     }
 }
