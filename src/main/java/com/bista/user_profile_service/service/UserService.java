@@ -3,6 +3,7 @@ package com.bista.user_profile_service.service;
 import org.springframework.stereotype.Service;
 
 import com.bista.user_profile_service.entity.User;
+import com.bista.user_profile_service.exception.BadRequestException;
 import com.bista.user_profile_service.exception.ResourceNotFoundException;
 import com.bista.user_profile_service.repo.UserRepository;
 
@@ -25,6 +26,9 @@ public class UserService {
     }
 
     public User saveUser(User user) {
+        if (user == null) {
+            throw new BadRequestException("User cannot be null");
+        }
         return userRepository.save(user);
     }
 
